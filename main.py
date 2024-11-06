@@ -13,6 +13,13 @@ ap.add_argument("-c", "--cascades", type=str, default="cascades",
 args = vars(ap.parse_args())
 
 
+detectorPaths = {
+	"face": "haarcascade_frontalface_default.xml",
+	"eyes": "haarcascade_eye.xml",
+	"smile": "haarcascade_smile.xml",
+}
+
+
 device = cv2.VideoCapture(0)
 if not device.isOpened():
     print("No se puede abrir la camara")
