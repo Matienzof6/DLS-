@@ -7,6 +7,10 @@ import os
 
 
 
+ap = argparse.ArgumentParser()
+ap.add_argument("-c", "--cascades", type=str, default="cascades",
+	help="path to input directory containing haar cascades")
+args = vars(ap.parse_args())
 
 
 device = cv2.VideoCapture(0)
