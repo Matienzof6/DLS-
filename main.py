@@ -19,6 +19,8 @@ detectorPaths = {
 	"smile": "haarcascade_smile.xml",
 }
 
+print("[INFO] loading haar cascades...")
+detectors = {}
 
 device = cv2.VideoCapture(0)
 if not device.isOpened():
