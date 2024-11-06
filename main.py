@@ -22,6 +22,13 @@ detectorPaths = {
 print("[INFO] loading haar cascades...")
 detectors = {}
 
+# loop over our detector paths
+for (name, path) in detectorPaths.items():
+	# load the haar cascade from disk and store it in the detectors dictionary
+	path = os.path.sep.join([args["cascades"], path])
+	detectors[name] = cv2.CascadeClassifier(path)
+
+
 device = cv2.VideoCapture(0)
 if not device.isOpened():
     print("No se puede abrir la camara")
