@@ -28,23 +28,62 @@ for (name, path) in detectorPaths.items():
 	path = os.path.sep.join([args["cascades"], path])
 	detectors[name] = cv2.CascadeClassifier(path)
 
+
+# initialize the video stream and allow the camera sensor to warm up
+
 print("[INFO] starting video stream...")
-device = cv2.VideoCapture(0)
+device = VideoStream(src=0).start()
 time.sleep(2.0)
-if not device.isOpened():
-    print("No se puede abrir la camara")
-    exit()
+
+# loop over the frames from the video stream
 while True:
-    cam, frame = device.read()
-    if not cam:
-        print("No se pudo leer de la cámara")
-        break
-    cv2.imshow("Image", frame)
+    # grab the frame from the video stream, resize it, and convert it to grayscale
+    frame = device.read()
+    frame = imutils.resize(frame, width=500)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    # perform face detection using the appropriate haar cascade
     faceRects = detectors["face"].detectMultiScale(
 		gray, scaleFactor=1.05, minNeighbors=5, minSize=(30, 30),
 		flags=cv2.CASCADE_SCALE_IMAGE)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    
+    # loop over the face bounding boxes
+    for (fX, fY, fW, fH) in faceRects:
+		# extract the face ROI
+        faceROI = gray[fY:fY+ fH, fX:fX + fW]
+		# apply eyes detection to the face ROI
+        eyeRects = detectors["eyes"].detectMultiScale(
+                faceROI, scaleFactor=1.1, minNeighbors=10,
+                minSize=(15, 15), flags=cv2.CASCADE_SCALE_IMAGE)
+            # apply smile detection to the face ROI
+        smileRects = detectors["smile"].detectMultiScale(
+                faceROI, scaleFactor=1.1, minNeighbors=10,
+                minSize=(15, 15), flags=cv2.CASCADE_SCALE_IMAGE)
+        # loop over the eye bounding boxes
+        for (eX, eY, eW, eH) in eyeRects:
+			# draw the eye bounding box
+            ptA = (fX + eX, fY + eY)
+            ptB = (fX + eX + eW, fY + eY + eH)
+            cv2.rectangle(frame, ptA, ptB, (0, 0, 255), 2)
+		# loop over the smile bounding boxes
+        for (sX, sY, sW, sH) in smileRects:
+			# draw the smile bounding box
+            ptA = (fX + sX, fY + sY)
+            ptB = (fX + sX + sW, fY + sY + sH)
+            cv2.rectangle(frame, ptA, ptB, (255, 0, 0), 2)
+		# draw the face bounding box on the frame
+        cv2.rectangle(frame, (fX, fY), (fX + fW, fY + fH),
+			(0, 255, 0), 2)
+
+
+
+
+# show the output frame
+    cv2.imshow("Frame", frame)
+    key = cv2.waitKey(1) & 0xFF
+    # if the `q` key was pressed, break from the loop
+    if key == ord("q"):
         break
-device.release()
+    # do a bit of cleanup
 cv2.destroyAllWindows()
+device.stop()
