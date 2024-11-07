@@ -28,8 +28,9 @@ for (name, path) in detectorPaths.items():
 	path = os.path.sep.join([args["cascades"], path])
 	detectors[name] = cv2.CascadeClassifier(path)
 
-
+print("[INFO] starting video stream...")
 device = cv2.VideoCapture(0)
+time.sleep(2.0)
 if not device.isOpened():
     print("No se puede abrir la camara")
     exit()
@@ -39,6 +40,10 @@ while True:
         print("No se pudo leer de la cámara")
         break
     cv2.imshow("Image", frame)
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    faceRects = detectors["face"].detectMultiScale(
+		gray, scaleFactor=1.05, minNeighbors=5, minSize=(30, 30),
+		flags=cv2.CASCADE_SCALE_IMAGE)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 device.release()
