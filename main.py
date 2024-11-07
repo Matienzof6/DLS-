@@ -4,8 +4,7 @@ import argparse
 import time
 from imutils.video import VideoStream
 import os
-
-
+import subprocess
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-c", "--cascades", type=str, default="cascades",
@@ -53,9 +52,8 @@ while True:
     if len(faceRects) == 0:
         # Pause the video only if the video is not paused yet
         if not is_paused:
-            print("No se detectaron caras - Pausando el video")
-            # Aquí va el código para pausar el video (ejemplo: una función que presiona la tecla de pausa)
-            # pause_video()
+            subprocess.run(['playerctl', 'play-pause'])
+            print("Faces are no longer detected, video paused")
             is_paused = True  # change the state to "paused" to avoid loops
     else:
         # If the faces are detected the video will continue
