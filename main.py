@@ -56,8 +56,11 @@ while True:
             print("Faces are no longer detected, video paused")
             is_paused = True  # change the state to "paused" to avoid loops
     else:
-        # If the faces are detected the video will continue
-    
+        # If faces are detected, resume the video if it was paused
+        if is_paused:
+            subprocess.run(['playerctl', 'play-pause'])
+            print("Face detected, video resumed.")
+            is_paused = False  # reset the state to allow pause next time
     # loop over the face bounding boxes
         for (fX, fY, fW, fH) in faceRects:
             # extract the face ROI
